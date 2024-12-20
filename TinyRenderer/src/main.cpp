@@ -29,7 +29,6 @@ void widthBasedStepLine(int x0, int y0, int x1, int y1, TGAImage &image, const T
 // Third attempt
 void widthBasedStepLineFixingAliasingAndLoopOrder(int x0, int y0, int x1, int y1, TGAImage &image, const TGAColor& color)
 {
-
     const bool isLineTooSteep = std::abs(x0 - x1) < std::abs(y0 - y1);
     const bool isXYSwapped = isLineTooSteep;
     if (isLineTooSteep)
