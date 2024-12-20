@@ -140,22 +140,30 @@ void bresenhamsLineFinal(int x0, int y0, int x1, int y1, TGAImage &image, const 
 
     float error = 0;
     int y = y0;
-    for (int x = x0; x <= x1; x++)
+    if (isXYSwapped)
     {
-        if (isXYSwapped)
+        for (int x = x0; x <= x1; x++)
         {
             image.set(y, x, color);
+            error += derror;
+            if (error > width)  // 0.5 * width * 2 => width
+            {
+                y += (y1 > y0) ? 1 : -1;
+                error -= width * 2; // 1.0 * width * 2 => width * 2
+            }
         }
-        else
+    }
+    else
+    {
+        for (int x = x0; x <= x1; x++)
         {
             image.set(x, y, color);
-        }
-
-        error += derror;
-        if (error > width)  // 0.5 * width * 2 => width
-        {
-            y += (y1 > y0)? 1 : -1;
-            error -= width * 2; // 1.0 * width * 2 => width * 2
+            error += derror;
+            if (error > width)  // 0.5 * width * 2 => width
+            {
+                y += (y1 > y0) ? 1 : -1;
+                error -= width * 2; // 1.0 * width * 2 => width * 2
+            }
         }
     }
 }
