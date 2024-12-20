@@ -1,4 +1,5 @@
 #include "tgaimage.h"
+#include "model.h"
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0,   0,   255);
@@ -136,7 +137,7 @@ void bresenhamsLineFinal(int x0, int y0, int x1, int y1, TGAImage &image, const 
 
     const auto width = x1 - x0;
     const auto height = y1 - y0;
-    const auto derror = height * 2; // (height / width) * width * 2 => height * 2
+    const auto derror = std::abs(height) * 2; // (height / width) * width * 2 => height * 2
 
     float error = 0;
     int y = y0;
@@ -168,7 +169,8 @@ void bresenhamsLineFinal(int x0, int y0, int x1, int y1, TGAImage &image, const 
     }
 }
 
-int main(int argc, char** argv) {
+void lesson1DrawLine()
+{
     TGAImage image(100, 100, TGAImage::RGB);
 
     // First attempt
@@ -214,5 +216,41 @@ int main(int argc, char** argv) {
 
     image.flip_vertically(); // i want to have the origin at the left bottom corner of the image
     image.write_tga_file("output.tga");
+}
+
+void lesson1DrawModel(const char *pathToModelAsset)
+{
+    Model model(pathToModelAsset);
+
+    const auto width = 800;
+    const auto height = 800;
+    TGAImage image(width, height, TGAImage::RGB);
+    for (int i = 0; i < model.nfaces(); i++)
+    {
+        std::vector<int> faceVertIndices = model.face(i);
+        for (int j = 0; j < 3; j++)
+        {
+            const int vert0Index = faceVertIndices[j];
+            const int vert1Index = faceVertIndices[(j + 1) % 3];
+            const Vec3f vert0 = model.vert(vert0Index);
+            const Vec3f vert1 = model.vert(vert1Index);
+
+            // We ignore depth (z), and use the center of the image as the model space origin.
+            // The provided model vertices range from -1 ~ 1. We want to map vert(0, 0) to image(width * 0.5, height * 0.5).
+            int x0 = (vert0.x + 1.0f) * width / 2.0f;
+            int y0 = (vert0.y + 1.0f) * height / 2.0f;
+            int x1 = (vert1.x + 1.0f) * width / 2.0f;
+            int y1 = (vert1.y + 1.0f) * height / 2.0f;
+            bresenhamsLineFinal(x0, y0, x1, y1, image, white);
+        }
+    }
+
+    image.flip_vertically(); // i want to have the origin at the left bottom corner of the image
+    image.write_tga_file("output.tga");
+}
+
+int main(int argc, char** argv) {
+    //lesson1DrawLine();
+    lesson1DrawModel("assets/african_head.obj");
     return 0;
 }
